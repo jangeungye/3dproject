@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 2445983228273205241}
   - component: {fileID: 7114702445692378178}
   - component: {fileID: 1037442032761760757}
-  - component: {fileID: 9105371253019330904}
+  - component: {fileID: 35236660267381133}
   m_Layer: 11
   m_Name: Bullet Case
   m_TagString: Untagged
@@ -83,7 +83,7 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 0.45, y: 0.3, z: 0.3}
   m_Center: {x: 12.109411, y: 3.3624659, z: -39.971222}
---- !u!114 &9105371253019330904
+--- !u!114 &35236660267381133
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}

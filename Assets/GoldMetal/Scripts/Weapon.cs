@@ -36,11 +36,11 @@ public class Weapon : MonoBehaviour
     }
     IEnumerator Swing()
     {
-        yield return new WaitForSeconds(0.1f);
+        yield return new WaitForSeconds(0.45f);
         meleeArea.enabled = true;
         trailEffect.enabled = true;
 
-        yield return new WaitForSeconds(0.3f);
+        yield return new WaitForSeconds(0.1f);
         meleeArea.enabled = false;
 
         yield return new WaitForSeconds(0.3f);
@@ -53,11 +53,13 @@ public class Weapon : MonoBehaviour
         GameObject instantBullet = Instantiate(bullet, bulletPos.position, bulletPos.rotation);
         Rigidbody bulletRigid = instantBullet.GetComponent<Rigidbody>();
         bulletRigid.velocity = bulletPos.forward * 50;
+
         yield return null;
+
         //#2.≈∫«« πË√‚
         GameObject instantCase = Instantiate(bulletCase, bulletCasePos.position, bulletCasePos.rotation);
         Rigidbody caseRigid = instantCase.GetComponent<Rigidbody>();
-        Vector3 casevec = bulletCasePos.forward * Random.Range(-3, -2) + Vector3.up * Random.Range(2, 3);
+        Vector3 casevec = bulletCasePos.forward * Random.Range(-3, -2) + Vector3.up * Random.Range(2, 3); //¿ŒΩ∫≈œΩ∫»≠ µ» ≈∫««ø° ∑£¥˝«— »˚ ∞°«œ±‚
         caseRigid.AddForce(casevec, ForceMode.Impulse);
         caseRigid.AddTorque(Vector3.up * 10, ForceMode.Impulse); 
     }
