@@ -98,7 +98,7 @@ GameObject:
   - component: {fileID: 2521417244715808118}
   m_Layer: 0
   m_Name: Weapon Hammer
-  m_TagString: Weapon
+  m_TagString: Melee
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
