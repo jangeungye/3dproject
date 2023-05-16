@@ -10,13 +10,12 @@ public class PlayerCont : MonoBehaviour
     public bool[] hasWeapons; //플레이어 무기관련 배열 함수2
     public GameObject[] grenades; //플레이어 무기관련 배열 함수3
     public int hasGrenades; //플레이어 무기관련 배열 함수4
-    public GameObject grenadeObj;
     public Camera followCamera;
 
     public int ammo;
     public int coin;
     public int health;
-
+    
 
     public int maxAmmo;
     public int maxCoin;
@@ -31,7 +30,6 @@ public class PlayerCont : MonoBehaviour
     bool wDown;
     bool jDown;
     bool fDown;
-    bool gDown;
     bool rDown;
     bool iDown;
     bool sDown1;
@@ -44,14 +42,11 @@ public class PlayerCont : MonoBehaviour
     bool isReload;
     bool isFireReady = true;
     bool isBorder;
-    bool isDamage;
-
     Vector3 movevec;
     Vector3 doDodgevec;
 
     Animator anim;
     Rigidbody rigid;
-    MeshRenderer[] meshs;
 
     GameObject nearObject; //근처 무기 감지
     Weapon equipWeapon; //무기 오브젝트 장착
@@ -59,9 +54,8 @@ public class PlayerCont : MonoBehaviour
     float fireDelay; //공격딜레이
     void Awake()
     {
-        anim = GetComponentInChildren<Animator>(); //맨첫번째 컴포넌트
+        anim = GetComponentInChildren<Animator>();
         rigid = GetComponent<Rigidbody>();
-        meshs = GetComponentsInChildren<MeshRenderer>(); //복수 컴포넌트 GetComponent + s
     }
 
     void Update()
@@ -70,7 +64,6 @@ public class PlayerCont : MonoBehaviour
         Move(); //움직임함수
         Turn(); //회전함수
         Jump(); //점프함수
-        Grenade();
         Attack(); //공격함수
         Dodge(); //회피함수
         Interation(); //상호작용함수
@@ -84,7 +77,6 @@ public class PlayerCont : MonoBehaviour
         wDown = Input.GetButton("Walk"); //걷기 버튼 쉬프트
         jDown = Input.GetButtonDown("Jump"); //점프 버튼 스페이스바
         fDown = Input.GetButton("Fire1");
-        gDown = Input.GetButtonDown("Fire2");
         rDown = Input.GetButtonDown("Reload"); //재장전
         iDown = Input.GetButtonDown("Interation"); //상호작용 버튼 E
         sDown1 = Input.GetButtonDown("Swap1"); //무기1
@@ -124,7 +116,7 @@ public class PlayerCont : MonoBehaviour
         {
             Ray ray = followCamera.ScreenPointToRay(Input.mousePosition);
             RaycastHit rayHit;
-            if (Physics.Raycast(ray, out rayHit, 100) && !isDodge)
+            if (Physics.Raycast(ray, out rayHit, 100))
             {
                 Vector3 nextvec = rayHit.point - transform.position;
                 nextvec.y = 0;
@@ -142,31 +134,6 @@ public class PlayerCont : MonoBehaviour
             anim.SetBool("isJump", true);
             anim.SetTrigger("DoJump");
             isJump = true;
-        }
-    }
-    void Grenade()
-    {
-        if (hasGrenades == 0) //수류탄 0일 때 리턴값
-            return;
-
-        if (gDown && !isReload && !isSwap)
-        {
-            Ray ray = followCamera.ScreenPointToRay(Input.mousePosition);
-            RaycastHit rayHit;
-
-            if (Physics.Raycast(ray, out rayHit, 100) && !isDodge)
-            {
-                Vector3 nextvec = rayHit.point - transform.position;
-                nextvec.y = 10;
-
-                GameObject instantGrenade = Instantiate(grenadeObj, transform.position, transform.rotation);
-                Rigidbody rigidGrenade = instantGrenade.GetComponent<Rigidbody>(); //생성된 수류탄의 리지드바디를 활용하여 던지는 로직 구현
-                rigidGrenade.AddForce(nextvec, ForceMode.Impulse);
-                rigidGrenade.AddTorque(Vector3.back * 10, ForceMode.Impulse);
-
-                hasGrenades--;
-                grenades[hasGrenades].SetActive(false);
-            }
         }
     }
     void Attack()
@@ -208,15 +175,10 @@ public class PlayerCont : MonoBehaviour
 
     void ReloadOut()
     {
-        int reAmmo = ammo + equipWeapon.curAmmo < equipWeapon.maxAmmo
-                     ? ammo : equipWeapon.maxAmmo - equipWeapon.curAmmo;
-        equipWeapon.curAmmo += reAmmo;
+        int reAmmo = ammo < equipWeapon.maxAmmo ? ammo : equipWeapon.maxAmmo;
+        equipWeapon.curAmmo = reAmmo;
         ammo -= reAmmo;
         isReload = false;
-        //int reAmmo = ammo < equipWeapon.maxAmmo ? ammo : equipWeapon.maxAmmo;
-        //equipWeapon.curAmmo = reAmmo;
-        //ammo -= reAmmo;
-        //isReload = false;
     }
     void Dodge()
     {
@@ -344,42 +306,6 @@ public class PlayerCont : MonoBehaviour
             }
             Destroy(other.gameObject);
         }
-        else if (other.CompareTag("EnemyBullet"))
-        {
-            if (!isDamage)
-            {
-                Bullet enemyBullet = other.GetComponent<Bullet>();
-                health -= enemyBullet.damage;
-                
-                bool isBossAtk = other.name == "Boss Melee Area";
-                StartCoroutine(OnDamage(isBossAtk));
-            }
-            if (other.GetComponent<Rigidbody>() != null) //리지드바디 유무를 조건으로 하여 Destroy() 호출            
-                Destroy(other.gameObject);
-            
-        }
-    }
-
-    IEnumerator OnDamage(bool isBossAtk)
-    {
-        isDamage = true;
-        foreach (MeshRenderer mesh in meshs) //반복문을 사용하여 모든 재질의 색상을 변경
-        {
-            mesh.material.color = Color.yellow;
-        }
-
-        if (isBossAtk)
-            rigid.AddForce(transform.forward * -25, ForceMode.Impulse);
-        yield return new WaitForSeconds(1f);
-
-        isDamage = false;
-        foreach (MeshRenderer mesh in meshs)
-        {
-            mesh.material.color = Color.white;
-        }
-
-        if (isBossAtk)
-            rigid.velocity = Vector3.zero;
     }
     void OnTriggerStay(Collider other)
     {
