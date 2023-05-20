@@ -18,5 +18,11 @@ public class BossMissile : Bullet
     void Update()
     {
         nav.SetDestination(target.position); // ÃßÀû
+        StartCoroutine(Destroy());
+    }
+    IEnumerator Destroy()
+    {
+            yield return new WaitForSeconds(5f);
+            this.gameObject.SetActive(false);  
     }
 }

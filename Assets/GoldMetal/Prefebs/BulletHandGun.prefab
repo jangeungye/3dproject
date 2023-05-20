@@ -47,7 +47,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b4c5589f8807aa7458aacccfe9c4fc4a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  damage: 20
+  damage: 30
+  isMelee: 0
+  isRock: 0
 --- !u!96 &237286932742259345
 TrailRenderer:
   serializedVersion: 3

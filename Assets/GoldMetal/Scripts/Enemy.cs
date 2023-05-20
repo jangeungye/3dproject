@@ -9,10 +9,12 @@ public class Enemy : MonoBehaviour
     public Type enemyType;
     public int maxhealth;
     public int curhealth;
+    public int score;
+    public GameManager manager;
     public Transform target;
     public BoxCollider meleeArea; //공격범위 변수
     public GameObject bullet;
-
+    public GameObject[] coins;
     public bool isChase; //추적을 결정하는 변수
     public bool isAttack;
     public bool isDead;
@@ -22,6 +24,9 @@ public class Enemy : MonoBehaviour
     public MeshRenderer[] meshs; //피격 이펙트를 플레이어처럼 모든 메테리얼로 변경
     public NavMeshAgent nav;
     public Animator anim;
+    public RectTransform Enemy1HealthBar;
+    public RectTransform Enemy2HealthBar;
+    public RectTransform Enemy3HealthBar;
     //NavMesh : NavAgent가 경로를 그리기 위한 바탕(Mesh) Static 오브젝트만 Bake 가능
     private void Awake() //Awake함수는 자식 스크립트만 함수 실행
     {
@@ -184,16 +189,42 @@ public class Enemy : MonoBehaviour
             foreach (MeshRenderer mesh in meshs)
                 mesh.material.color = Color.white;
         }
-        else
+        else if (curhealth <= 0 && !isDead)
         {
             foreach (MeshRenderer mesh in meshs)
                 mesh.material.color = Color.gray;
-
+                
             gameObject.layer = 14;
             isDead = true;
             isChase = false;
             nav.enabled = false; //사망 리액션을 유지하기 위해 NavAgent를 비활성
             anim.SetTrigger("doDie");
+
+            PlayerCont player = target.GetComponent<PlayerCont>();
+            player.score += score;
+            int ranCoin = Random.Range(0, 3);
+            Instantiate(coins[ranCoin], transform.position, Quaternion.identity);
+            
+                switch (enemyType)
+            {
+                case Type.A:
+                    //Enemy1HealthBar.localScale = new Vector3((float)curhealth / maxhealth, 1, 1);
+                    manager.enemyCntA--;
+                    break;
+                case Type.B:
+                    //Enemy2HealthBar.localScale = new Vector3((float)curhealth / maxhealth, 1, 1);
+                    manager.enemyCntB--;
+                    break;
+                case Type.C:
+                    //Enemy3HealthBar.localScale = new Vector3((float)curhealth / maxhealth, 1, 1);
+                    manager.enemyCntC--;
+                    break;
+                case Type.D:
+                    manager.enemyCntD--;
+                    break;
+            }
+            
+            
 
             if (isGrenade)
             {
@@ -210,11 +241,28 @@ public class Enemy : MonoBehaviour
                 reactVec += Vector3.up;
                 rigid.AddForce(reactVec * 5, ForceMode.Impulse); //AddForce 함수로 넉백 구하기
             }
-            
-            if (enemyType != Type.D)
-                Destroy(gameObject, 4);
+                        
+            Destroy(gameObject, 4);
         }
 
+    }
+    private void LateUpdate()
+    {
+        switch (enemyType)
+        {
+            case Type.A:
+                Enemy1HealthBar.localScale = new Vector3((float)curhealth / maxhealth, 1, 1);
+                
+                break;
+            case Type.B:
+                Enemy2HealthBar.localScale = new Vector3((float)curhealth / maxhealth, 1, 1);
+                
+                break;
+            case Type.C:
+                Enemy3HealthBar.localScale = new Vector3((float)curhealth / maxhealth, 1, 1);
+                
+                break;           
+        }
     }
 
 }

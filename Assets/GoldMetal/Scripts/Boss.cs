@@ -86,9 +86,8 @@ public class Boss : Enemy
         bossMissileB.target = target;
 
         yield return new WaitForSeconds(2f);
-
+        
         StartCoroutine(Think());
-
     }
     IEnumerator RockShot()
     {

@@ -12,11 +12,12 @@ public class PlayerCont : MonoBehaviour
     public int hasGrenades; //플레이어 무기관련 배열 함수4
     public GameObject grenadeObj;
     public Camera followCamera;
+    public GameManager manager;
 
     public int ammo;
     public int coin;
     public int health;
-
+    public int score;
 
     public int maxAmmo;
     public int maxCoin;
@@ -45,6 +46,8 @@ public class PlayerCont : MonoBehaviour
     bool isFireReady = true;
     bool isBorder;
     bool isDamage;
+    bool isShop;
+    bool isDead;
 
     Vector3 movevec;
     Vector3 doDodgevec;
@@ -54,7 +57,7 @@ public class PlayerCont : MonoBehaviour
     MeshRenderer[] meshs;
 
     GameObject nearObject; //근처 무기 감지
-    Weapon equipWeapon; //무기 오브젝트 장착
+    public Weapon equipWeapon; //무기 오브젝트 장착
     int equipWeaponIndex = -1; //무기 번호 저장 초기값 -1
     float fireDelay; //공격딜레이
     void Awake()
@@ -62,6 +65,9 @@ public class PlayerCont : MonoBehaviour
         anim = GetComponentInChildren<Animator>(); //맨첫번째 컴포넌트
         rigid = GetComponent<Rigidbody>();
         meshs = GetComponentsInChildren<MeshRenderer>(); //복수 컴포넌트 GetComponent + s
+
+        Debug.Log(PlayerPrefs.GetInt("MaxScore"));
+        //PlayerPrefs.SetInt("MaxScore", 112500);
     }
 
     void Update()
@@ -83,8 +89,8 @@ public class PlayerCont : MonoBehaviour
         vAxis = Input.GetAxis("Vertical"); //수직움직임
         wDown = Input.GetButton("Walk"); //걷기 버튼 쉬프트
         jDown = Input.GetButtonDown("Jump"); //점프 버튼 스페이스바
-        fDown = Input.GetButton("Fire1");
-        gDown = Input.GetButtonDown("Fire2");
+        fDown = Input.GetButton("Fire1"); //총 발사
+        gDown = Input.GetButtonDown("Fire2"); //수류탄 발사
         rDown = Input.GetButtonDown("Reload"); //재장전
         iDown = Input.GetButtonDown("Interation"); //상호작용 버튼 E
         sDown1 = Input.GetButtonDown("Swap1"); //무기1
@@ -98,7 +104,7 @@ public class PlayerCont : MonoBehaviour
         {
             movevec = doDodgevec;
         }
-        if(isSwap || isReload || !isFireReady)
+        if(isSwap || isReload || !isFireReady || isDead)
         {
             movevec = Vector3.zero;
         }
@@ -124,7 +130,7 @@ public class PlayerCont : MonoBehaviour
         {
             Ray ray = followCamera.ScreenPointToRay(Input.mousePosition);
             RaycastHit rayHit;
-            if (Physics.Raycast(ray, out rayHit, 100) && !isDodge)
+            if (Physics.Raycast(ray, out rayHit, 100) && !isDodge && !isDead)
             {
                 Vector3 nextvec = rayHit.point - transform.position;
                 nextvec.y = 0;
@@ -136,7 +142,7 @@ public class PlayerCont : MonoBehaviour
 
     void Jump()
     {
-        if (jDown && movevec == Vector3.zero && !isJump && !isDodge && !isSwap) //움직이지 않을 때(액션X) 점프 
+        if (jDown && movevec == Vector3.zero && !isJump && !isDodge && !isSwap && !isReload && !isDead) //움직이지 않을 때(액션X) 점프 
         {
             rigid.AddForce(Vector3.up * 15, ForceMode.Impulse); //Impulse 즉각적인 힘 주기
             anim.SetBool("isJump", true);
@@ -177,7 +183,7 @@ public class PlayerCont : MonoBehaviour
         fireDelay += Time.deltaTime; //공격딜레이에 시간을 더해주고
         isFireReady = equipWeapon.rate < fireDelay; //공격가능 여부를 확인
         //점프할때도 공격가능
-        if (fDown && isFireReady && !isDodge && !isSwap) {
+        if (fDown && isFireReady && !isDodge && !isSwap && !isShop && !isReload) {
             equipWeapon.Use();
             anim.SetTrigger(equipWeapon.type == Weapon.Type.Melee ? "doSwing" : "doShot"); //무기 타입에 따라 트리거 실행
             fireDelay = 0;
@@ -196,12 +202,12 @@ public class PlayerCont : MonoBehaviour
         if (ammo == 0)
             return;
 
-        if (rDown && !isJump && !isDodge && !isSwap && isFireReady) 
+        if (rDown && !isJump && !isDodge && !isSwap && isFireReady && !isShop) 
         {
             anim.SetTrigger("doReload");
             isReload = true;
 
-            Invoke("ReloadOut", 3f);
+            Invoke("ReloadOut", 2f);
         }
             
     }
@@ -276,7 +282,7 @@ public class PlayerCont : MonoBehaviour
     }
     void Interation()
     {
-        if(iDown && nearObject != null &&  !isJump && !isDodge) //오브젝트 근처 상호작용
+        if(iDown && nearObject != null &&  !isJump && !isDodge && !isDead) //오브젝트 근처 상호작용
         {
             if (nearObject.CompareTag("Weapon")) //무기 태그
             {
@@ -286,6 +292,14 @@ public class PlayerCont : MonoBehaviour
 
                 Destroy(nearObject); //파괴
             }
+            else if (nearObject.CompareTag("Shop")) //무기 태그
+            {
+                Shop shop = nearObject.GetComponent<Shop>();
+                shop.Enter(this);
+                isShop = true;
+                nearObject = null;
+            }
+
         }
     }
 
@@ -370,6 +384,10 @@ public class PlayerCont : MonoBehaviour
 
         if (isBossAtk)
             rigid.AddForce(transform.forward * -25, ForceMode.Impulse);
+
+        if (health <= 0 && !isDead)
+            OnDie();
+
         yield return new WaitForSeconds(1f);
 
         isDamage = false;
@@ -380,14 +398,24 @@ public class PlayerCont : MonoBehaviour
 
         if (isBossAtk)
             rigid.velocity = Vector3.zero;
+
+        
+        
+        
     }
+    void OnDie()
+    {
+        anim.SetTrigger("doDie");
+        isDead = true;
+        manager.GameOver();
+    }
+
     void OnTriggerStay(Collider other)
     {
-        if (other.CompareTag("Weapon")) //무기 감지
+        if (other.CompareTag("Weapon") || other.CompareTag("Shop")) //무기 감지
         {
             nearObject = other.gameObject;
 
-            print(nearObject.name);
         }
             
     }
@@ -398,5 +426,14 @@ public class PlayerCont : MonoBehaviour
         {
             nearObject = null;
         }
+        else if (other.CompareTag("Shop"))
+        {
+            Shop shop = nearObject.GetComponent<Shop>();
+            shop.Exit();
+            isShop = false;
+            nearObject = null;
+        }
+            
+            
     }
 }
