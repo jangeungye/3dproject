@@ -32,6 +32,7 @@ public class GameManager : MonoBehaviour
     public GameObject gamePanel;
     public GameObject overPanel;
 
+
     public Text maxScoreTxt;
     public Text ScoreTxt;
     public Text stageTxt;
@@ -60,6 +61,14 @@ public class GameManager : MonoBehaviour
     int HPplus;
 
     public GameObject ESCMenuSet;
+    public GameObject bossPanel;
+
+    public AudioSource GameStartSound;
+    public AudioSource BattleSound;
+    public AudioSource Stage1Sound;
+    public AudioSource Stage2Sound;
+    public AudioSource Stage3Sound;
+    public AudioSource Stage4Sound;
     private void Awake()
     {
         enemyList = new List<int>();
@@ -67,7 +76,8 @@ public class GameManager : MonoBehaviour
     }
     public void GameStart()
     {
-        
+        GameStartSound.Stop();
+        Stage1Sound.Play();
         MenuCam.SetActive(false);
         gameCam.SetActive(true);
 
@@ -77,7 +87,7 @@ public class GameManager : MonoBehaviour
         player.gameObject.SetActive(true);
         
     }
-
+    
     public void GameOver()
     {
         gamePanel.SetActive(false);
@@ -134,12 +144,43 @@ public class GameManager : MonoBehaviour
 
         
     }
+    IEnumerator BossPanel()
+    {
 
+        bossPanel.SetActive(true);
+        yield return new WaitForSeconds(2f);
+        bossPanel.SetActive(false);
+
+
+    }
     IEnumerator InBattle()
     {
+        
+        if (stage == 6)
+        {
+            Stage1Sound.Stop();
+            Stage2Sound.Play();
+        }
+        if (stage == 11)
+        {
+            Stage2Sound.Stop();
+            Stage3Sound.Play();
+        }
+        if (stage == 16)
+        {
+            Stage3Sound.Stop();
+            Stage4Sound.Play();
+        }
         if (stage % 5 == 0)
         {
+            StartCoroutine(BossPanel());
+            Stage1Sound.Stop();
+            Stage2Sound.Stop();
+            Stage3Sound.Stop();
+            Stage4Sound.Stop();
+            BattleSound.Play();
             enemyCntD++;
+            yield return new WaitForSeconds(2f);
             GameObject instantEnemy = Instantiate(enemies[3],
                                                       enemyZones[0].position,
                                                       enemyZones[0].rotation);
@@ -154,6 +195,7 @@ public class GameManager : MonoBehaviour
         
         else
         {
+            
             for (int index = 0; index < stage; index++)
             {
                 int ran = Random.Range(0, 3);
@@ -192,8 +234,9 @@ public class GameManager : MonoBehaviour
             yield return null;
         }
         yield return new WaitForSeconds(4f);
+        BattleSound.Stop();
 
-        
+
         boss = null;
         StageEnd();       
     }

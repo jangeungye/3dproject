@@ -20,18 +20,21 @@ public class Weapon : MonoBehaviour
     public GameObject bullet;
     public Transform bulletCasePos;
     public GameObject bulletCase;
-
+    public AudioSource ShotSound;
+    public AudioSource SwingSound;
     public void Use()
     {
         if (type == Type.Melee)
         {
             StopCoroutine("Swing");
             StartCoroutine("Swing");
+            SwingSound.Play();
         }
         else if (type == Type.Range && curAmmo > 0)
         {
             curAmmo--; //현재 탄약을 조건에 추가하고, 발사했을 때 감소하도록 작성
             StartCoroutine("Shot");
+            ShotSound.Play();
         }               
     }
     IEnumerator Swing()
@@ -49,6 +52,7 @@ public class Weapon : MonoBehaviour
 
     IEnumerator Shot()
     {
+        
         //#1.총알 발사
         GameObject instantBullet = Instantiate(bullet, bulletPos.position, bulletPos.rotation);
         Rigidbody bulletRigid = instantBullet.GetComponent<Rigidbody>();

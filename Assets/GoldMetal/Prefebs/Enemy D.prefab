@@ -122,8 +122,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   enemyType: 3
-  maxhealth: 200
-  curhealth: 200
+  maxhealth: 500
+  curhealth: 500
   score: 2000
   manager: {fileID: 0}
   target: {fileID: 0}
@@ -141,6 +141,9 @@ MonoBehaviour:
   meshs: []
   nav: {fileID: 0}
   anim: {fileID: 0}
+  Enemy1HealthBar: {fileID: 0}
+  Enemy2HealthBar: {fileID: 0}
+  Enemy3HealthBar: {fileID: 0}
   missile: {fileID: 6035696721535778579, guid: 4472e24765ba81545bbcb6118674d522, type: 3}
   missilePortA: {fileID: 6119589349136943439}
   missilePortB: {fileID: 3877030104253949858}

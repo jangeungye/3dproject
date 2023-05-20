@@ -14,6 +14,8 @@ public class PlayerCont : MonoBehaviour
     public Camera followCamera;
     public GameManager manager;
 
+    
+
     public int ammo;
     public int coin;
     public int health;
@@ -66,7 +68,7 @@ public class PlayerCont : MonoBehaviour
         rigid = GetComponent<Rigidbody>();
         meshs = GetComponentsInChildren<MeshRenderer>(); //복수 컴포넌트 GetComponent + s
 
-        Debug.Log(PlayerPrefs.GetInt("MaxScore"));
+        //Debug.Log(PlayerPrefs.GetInt("MaxScore"));
         //PlayerPrefs.SetInt("MaxScore", 112500);
     }
 
@@ -76,7 +78,7 @@ public class PlayerCont : MonoBehaviour
         Move(); //움직임함수
         Turn(); //회전함수
         Jump(); //점프함수
-        Grenade();
+        Grenade();//수류탄함수
         Attack(); //공격함수
         Dodge(); //회피함수
         Interation(); //상호작용함수
@@ -148,6 +150,8 @@ public class PlayerCont : MonoBehaviour
             anim.SetBool("isJump", true);
             anim.SetTrigger("DoJump");
             isJump = true;
+
+            
         }
     }
     void Grenade()

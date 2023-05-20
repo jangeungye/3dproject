@@ -31,8 +31,8 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 2657366998530072715}
-  - {fileID: 6479538452930321125}
   - {fileID: 5268666148800410335}
+  - {fileID: 6479538452930321125}
   m_Father: {fileID: 7580952612099061310}
   m_RootOrder: -1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -384,14 +384,18 @@ MonoBehaviour:
   - {fileID: 0}
   - {fileID: 0}
   hasGrenades: 0
+  grenadeObj: {fileID: 0}
   followCamera: {fileID: 0}
+  manager: {fileID: 0}
   ammo: 70
   coin: 0
   health: 100
+  score: 0
   maxAmmo: 999
   maxCoin: 99999
   maxHealth: 100
   maxHasGrenades: 4
+  equipWeapon: {fileID: 0}
 --- !u!54 &465138468147567195
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -573,6 +577,7 @@ MonoBehaviour:
   bullet: {fileID: 4657182903655415318, guid: e814b1eaa2c075745b27d5cc277f1191, type: 3}
   bulletCasePos: {fileID: 1266701923289501984}
   bulletCase: {fileID: 4905779732822668183, guid: 4b82d6d0dcb476a458edd0d4e4d6bf14, type: 3}
+  AttackSound: {fileID: 0}
 --- !u!4 &5268666148800410335 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 7359347154574237340, guid: 65cd2218cfd67fe499e63ae9020857a2, type: 3}
@@ -716,6 +721,7 @@ MonoBehaviour:
   bullet: {fileID: 0}
   bulletCasePos: {fileID: 0}
   bulletCase: {fileID: 0}
+  AttackSound: {fileID: 0}
 --- !u!65 &2106561204818804938
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -858,6 +864,7 @@ MonoBehaviour:
   bullet: {fileID: 6966231909842827303, guid: 95aa764b13d6de444bb69b38828a616d, type: 3}
   bulletCasePos: {fileID: 2691003194986413497}
   bulletCase: {fileID: 4905779732822668183, guid: 4b82d6d0dcb476a458edd0d4e4d6bf14, type: 3}
+  AttackSound: {fileID: 0}
 --- !u!4 &6479538452930321125 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 1751948331216101529, guid: 21091c906f4e62b488e40510d4d9545d, type: 3}
