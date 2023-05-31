@@ -1,11 +1,11 @@
 using System.Collections;
-using System.Collections.Generic;
+using UnityEditor.SceneManagement;
 using UnityEngine;
 using UnityEngine.AI;
 
 public class Enemy : MonoBehaviour
 {
-    public enum Type { A, B, C, D }; // enum으로 타입을 나누고 그것을 지정할 변수를 생성
+    public enum Type { A, B, C, D, E}; // enum으로 타입을 나누고 그것을 지정할 변수를 생성
     public Type enemyType;
     public int maxhealth;
     public int curhealth;
@@ -18,15 +18,14 @@ public class Enemy : MonoBehaviour
     public bool isChase; //추적을 결정하는 변수
     public bool isAttack;
     public bool isDead;
+    
 
     public Rigidbody rigid;
     public BoxCollider boxCollider;
     public MeshRenderer[] meshs; //피격 이펙트를 플레이어처럼 모든 메테리얼로 변경
     public NavMeshAgent nav;
     public Animator anim;
-    public RectTransform Enemy1HealthBar;
-    public RectTransform Enemy2HealthBar;
-    public RectTransform Enemy3HealthBar;
+    public RectTransform[] enemyHealthBars = new RectTransform[3];
     //NavMesh : NavAgent가 경로를 그리기 위한 바탕(Mesh) Static 오브젝트만 Bake 가능
     private void Awake() //Awake함수는 자식 스크립트만 함수 실행
     {
@@ -36,7 +35,7 @@ public class Enemy : MonoBehaviour
         nav = GetComponent<NavMeshAgent>();
         anim = GetComponentInChildren<Animator>();
 
-        if (enemyType != Type.D)
+        if (enemyType != Type.D && enemyType != Type.E)
         Invoke("ChaseStart", 2);
     }
 
@@ -47,7 +46,7 @@ public class Enemy : MonoBehaviour
     }
     private void Update()
     {
-        if (nav.enabled && enemyType != Type.D)
+        if (nav.enabled && enemyType != Type.D && enemyType != Type.E)
         {
             nav.SetDestination(target.position); //SetDestination() : 도착할 목표 위치 지정 함수
             nav.isStopped = !isChase; //isStopped를 사용하여 완벽하게 멈추도록 작성
@@ -64,7 +63,7 @@ public class Enemy : MonoBehaviour
     }
     void Targerting()
     {
-        if (!isDead && enemyType != Type.D)
+        if (!isDead && enemyType != Type.D && enemyType != Type.E)
         {
             float targetRadius = 0f; //SphereCast ()의 반지름, 길이를 조정할 변수 선언
             float targetRange = 0f;
@@ -83,6 +82,7 @@ public class Enemy : MonoBehaviour
                     targetRadius = 0.5f;
                     targetRange = 25f;
                     break;
+
             }
 
             RaycastHit[] rayHits =
@@ -138,10 +138,10 @@ public class Enemy : MonoBehaviour
 
                 yield return new WaitForSeconds(2f);
                 break;
+     
+
         }
-
-        
-
+       
         isChase = true; 
         isAttack = false;
         anim.SetBool("isAttack", false);
@@ -160,7 +160,7 @@ public class Enemy : MonoBehaviour
             Vector3 reactVec = transform.position - other.transform.position;           
             StartCoroutine(OnDamage(reactVec, false));
             
-
+            
         }
         else if (other.CompareTag("Bullet"))
         {
@@ -169,6 +169,7 @@ public class Enemy : MonoBehaviour
             Vector3 reactVec = transform.position - other.transform.position;
             Destroy(other.gameObject);
             StartCoroutine(OnDamage(reactVec, true));
+            
         }
 
     }
@@ -197,30 +198,36 @@ public class Enemy : MonoBehaviour
             gameObject.layer = 14;
             isDead = true;
             isChase = false;
-            nav.enabled = false; //사망 리액션을 유지하기 위해 NavAgent를 비활성
-            anim.SetTrigger("doDie");
+            if (manager.stage != 10)//드론은 X
+            {
+                nav.enabled = false; //사망 리액션을 유지하기 위해 NavAgent를 비활성
+                anim.SetTrigger("doDie");
 
+                int ranCoin = Random.Range(0, 3);
+                Instantiate(coins[ranCoin], transform.position, Quaternion.identity);
+            }
+            GameObject obj = GameObject.Find("Player"); //생성될때 목적지(Player)를 찾는다
+            target = obj.transform; //위치 할당
             PlayerCont player = target.GetComponent<PlayerCont>();
             player.score += score;
-            int ranCoin = Random.Range(0, 3);
-            Instantiate(coins[ranCoin], transform.position, Quaternion.identity);
+            
             
                 switch (enemyType)
             {
                 case Type.A:
-                    //Enemy1HealthBar.localScale = new Vector3((float)curhealth / maxhealth, 1, 1);
-                    manager.enemyCntA--;
+                    manager.enemyCounts[0]--;
                     break;
                 case Type.B:
-                    //Enemy2HealthBar.localScale = new Vector3((float)curhealth / maxhealth, 1, 1);
-                    manager.enemyCntB--;
+                    manager.enemyCounts[1]--;
                     break;
                 case Type.C:
-                    //Enemy3HealthBar.localScale = new Vector3((float)curhealth / maxhealth, 1, 1);
-                    manager.enemyCntC--;
+                    manager.enemyCounts[2]--;
                     break;
                 case Type.D:
-                    manager.enemyCntD--;
+                    manager.enemyCounts[3]--;
+                    break;
+                case Type.E:
+                    manager.enemyCounts[4]--;
                     break;
             }
             
@@ -241,28 +248,23 @@ public class Enemy : MonoBehaviour
                 reactVec += Vector3.up;
                 rigid.AddForce(reactVec * 5, ForceMode.Impulse); //AddForce 함수로 넉백 구하기
             }
-                        
-            Destroy(gameObject, 4);
+            Destroy(gameObject, 4);           
         }
 
     }
-    private void LateUpdate()
+    private void LateUpdate() //오류 때문에 잠시 주석처리
     {
         switch (enemyType)
         {
             case Type.A:
-                Enemy1HealthBar.localScale = new Vector3((float)curhealth / maxhealth, 1, 1);
-                
+                enemyHealthBars[0].localScale = new Vector3((float)curhealth / maxhealth, 1, 1);
                 break;
             case Type.B:
-                Enemy2HealthBar.localScale = new Vector3((float)curhealth / maxhealth, 1, 1);
-                
+                enemyHealthBars[1].localScale = new Vector3((float)curhealth / maxhealth, 1, 1);
                 break;
             case Type.C:
-                Enemy3HealthBar.localScale = new Vector3((float)curhealth / maxhealth, 1, 1);
-                
-                break;           
+                enemyHealthBars[2].localScale = new Vector3((float)curhealth / maxhealth, 1, 1);
+                break;
         }
     }
-
 }

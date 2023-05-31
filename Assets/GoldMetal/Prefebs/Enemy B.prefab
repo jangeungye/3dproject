@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 1983370309545423642}
   - component: {fileID: 7666463463695816275}
   m_Layer: 5
-  m_Name: Canvas
+  m_Name: Enemy2Healthbars
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -161,6 +161,7 @@ MonoBehaviour:
   target: {fileID: 0}
   meleeArea: {fileID: 7402485609983376217}
   bullet: {fileID: 0}
+  LaserBall: {fileID: 0}
   coins:
   - {fileID: 8427981918412803502, guid: 26cfc244f6d293d489c8c5443d8b53c4, type: 3}
   - {fileID: 9104652117195864122, guid: 6a28bc142552b4944a64697775c13c95, type: 3}
@@ -173,9 +174,10 @@ MonoBehaviour:
   meshs: []
   nav: {fileID: 0}
   anim: {fileID: 0}
-  Enemy1HealthBar: {fileID: 0}
-  Enemy2HealthBar: {fileID: 823437480153446518}
-  Enemy3HealthBar: {fileID: 0}
+  enemyHealthBars:
+  - {fileID: 0}
+  - {fileID: 5390824446746685762}
+  - {fileID: 0}
 --- !u!54 &6321352884097128069
 Rigidbody:
   m_ObjectHideFlags: 0

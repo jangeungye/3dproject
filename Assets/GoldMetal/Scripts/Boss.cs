@@ -1,8 +1,6 @@
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
-using UnityEngine.UIElements;
 
 public class Boss : Enemy
 {
@@ -14,7 +12,6 @@ public class Boss : Enemy
     Vector3 lookVec; //플레이어의 움직임을 예측하는 벡터 생성
     Vector3 tauntVec;
     
-    // Start is called before the first frame update
     void Awake()
     {
         rigid = GetComponent<Rigidbody>();
@@ -26,8 +23,6 @@ public class Boss : Enemy
         nav.isStopped = true;
         StartCoroutine(Think());
     }
-
-    // Update is called once per frame
     void Update()
     {
         if (isDead)

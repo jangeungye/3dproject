@@ -101,7 +101,9 @@ public class PlayerCont : MonoBehaviour
     }
     void Move()
     {
-        movevec = new Vector3(hAxis, 0, vAxis).normalized;
+        
+        movevec = new Vector3(hAxis, 0, vAxis).normalized; //벡터 속도 정규화
+      
         if (isDodge)
         {
             movevec = doDodgevec;
@@ -123,7 +125,7 @@ public class PlayerCont : MonoBehaviour
         //#1.키보드에 의한 회전
         transform.LookAt(transform.position + movevec); //LookAt 지정된 벡터를 향해서 회전시켜주는 함수
 
-        //#2.마우스에 의한 회전
+        //#2.마우스 클릭에 의한 플레이어 회전
         //ray 마우스포지션을 rayhit에 저장 Physics.Raycast로 충돌감지
         //RayCastHit의 마우스 클릭 위치 활용하여 회전을 구현
         //out : 리턴처럼 반환값을 주어진 변수에 저장하는 키워드
@@ -223,10 +225,6 @@ public class PlayerCont : MonoBehaviour
         equipWeapon.curAmmo += reAmmo;
         ammo -= reAmmo;
         isReload = false;
-        //int reAmmo = ammo < equipWeapon.maxAmmo ? ammo : equipWeapon.maxAmmo;
-        //equipWeapon.curAmmo = reAmmo;
-        //ammo -= reAmmo;
-        //isReload = false;
     }
     void Dodge()
     {
@@ -318,10 +316,12 @@ public class PlayerCont : MonoBehaviour
         Debug.DrawRay(transform.position, transform.forward * 5, Color.green);
         isBorder = Physics.Raycast(transform.position, transform.forward, 5, LayerMask.GetMask("Wall"));
     }
+    
     void FixedUpdate()
     {
         FreezeRotation();
         StopToWall();
+        
     }
     void OnCollisionEnter(Collision collision)
     {
@@ -362,22 +362,25 @@ public class PlayerCont : MonoBehaviour
             }
             Destroy(other.gameObject);
         }
-        else if (other.CompareTag("EnemyBullet"))
+        else if (other.CompareTag("EnemyBullet") && other.gameObject.name != "LaserBall(Clone)")
         {
-            if (!isDamage)
+            if (isDamage == false)
             {
                 Bullet enemyBullet = other.GetComponent<Bullet>();
                 health -= enemyBullet.damage;
                 
                 bool isBossAtk = other.name == "Boss Melee Area";
-                StartCoroutine(OnDamage(isBossAtk));
+                StartCoroutine(OnDamage(isBossAtk)); 
             }
-            if (other.GetComponent<Rigidbody>() != null) //리지드바디 유무를 조건으로 하여 Destroy() 호출            
+            if (other.GetComponent<Rigidbody>() != null )
+            {
                 Destroy(other.gameObject);
+                
+            } //리지드바디 유무를 조건으로 하여 Destroy() 호출            
+                
             
         }
     }
-
     IEnumerator OnDamage(bool isBossAtk)
     {
         isDamage = true;
@@ -389,7 +392,7 @@ public class PlayerCont : MonoBehaviour
         if (isBossAtk)
             rigid.AddForce(transform.forward * -25, ForceMode.Impulse);
 
-        if (health <= 0 && !isDead)
+        if (health <= 0 && !isDead) //isDead -> !isDead
             OnDie();
 
         yield return new WaitForSeconds(1f);
@@ -399,13 +402,8 @@ public class PlayerCont : MonoBehaviour
         {
             mesh.material.color = Color.white;
         }
-
         if (isBossAtk)
-            rigid.velocity = Vector3.zero;
-
-        
-        
-        
+            rigid.velocity = Vector3.zero;      
     }
     void OnDie()
     {
@@ -414,16 +412,25 @@ public class PlayerCont : MonoBehaviour
         manager.GameOver();
     }
 
-    void OnTriggerStay(Collider other)
+    void OnTriggerStay(Collider other) //Stay인데 계속 발동 안됨
     {
         if (other.CompareTag("Weapon") || other.CompareTag("Shop")) //무기 감지
-        {
             nearObject = other.gameObject;
+        
 
-        }
+        if (other.gameObject.name == "LaserBall(Clone)" && other.CompareTag("EnemyBullet"))
+        {
+            Bullet enemyBullet = other.GetComponent<Bullet>();
+            health -= enemyBullet.damage;
+            bool isBossAtk = other.name == "Boss Melee Area";
+            StartCoroutine(OnDamage(isBossAtk)); //Boss는 발동 안됨
             
+        }
+        else
+        {
+            //
+        }       
     }
-
     void OnTriggerExit(Collider other)
     {
         if (other.CompareTag("Weapon")) //무기감지 끝처리
@@ -433,7 +440,7 @@ public class PlayerCont : MonoBehaviour
         else if (other.CompareTag("Shop"))
         {
             Shop shop = nearObject.GetComponent<Shop>();
-            shop.Exit();
+            shop.Exit();        
             isShop = false;
             nearObject = null;
         }
