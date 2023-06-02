@@ -91,7 +91,7 @@ public class PlayerCont : MonoBehaviour
         vAxis = Input.GetAxis("Vertical"); //수직움직임
         wDown = Input.GetButton("Walk"); //걷기 버튼 쉬프트
         jDown = Input.GetButtonDown("Jump"); //점프 버튼 스페이스바
-        fDown = Input.GetButton("Fire1"); //총 발사
+        fDown = Input.GetButton("Fire1"); //마우스포인트 & 총 발사 
         gDown = Input.GetButtonDown("Fire2"); //수류탄 발사
         rDown = Input.GetButtonDown("Reload"); //재장전
         iDown = Input.GetButtonDown("Interation"); //상호작용 버튼 E
@@ -129,12 +129,12 @@ public class PlayerCont : MonoBehaviour
         //ray 마우스포지션을 rayhit에 저장 Physics.Raycast로 충돌감지
         //RayCastHit의 마우스 클릭 위치 활용하여 회전을 구현
         //out : 리턴처럼 반환값을 주어진 변수에 저장하는 키워드
-        //100은 ray의 길이
+        //500은 ray의 길이
         if (fDown)
         {
             Ray ray = followCamera.ScreenPointToRay(Input.mousePosition);
             RaycastHit rayHit;
-            if (Physics.Raycast(ray, out rayHit, 100) && !isDodge && !isDead)
+            if (Physics.Raycast(ray, out rayHit, 500) && !isDodge && !isDead) //거리 500 지정
             {
                 Vector3 nextvec = rayHit.point - transform.position;
                 nextvec.y = 0;

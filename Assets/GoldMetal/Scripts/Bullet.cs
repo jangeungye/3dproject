@@ -8,15 +8,16 @@ public class Bullet : MonoBehaviour
     public bool isMelee;
     public bool isRock;
     // Start is called before the first frame update
+
     void OnCollisionEnter(Collision collision) //총알 isTrigger일 시에는 바꾸기
     {
         if (!isRock && collision.gameObject.CompareTag("Floor"))
         {
-            Destroy(gameObject, 3);
+            Invoke("DestoryBullet", 3);
         }
         else if (collision.gameObject.CompareTag("Wall"))
         {
-            Destroy(gameObject);
+            ObjectPoolManager.Instance.BulletInsertQueue(gameObject);
         }
     }
 
@@ -24,9 +25,12 @@ public class Bullet : MonoBehaviour
     {
         if (!isMelee && other.gameObject.CompareTag("Floor"))
         {
-            Destroy(gameObject, 3);
+            Invoke("DestoryBullet", 3);
         }
     }
-
+    void DestoryBullet()
+    {
+        ObjectPoolManager.Instance.BulletInsertQueue(gameObject);
+    }
 
 }

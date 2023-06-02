@@ -1,5 +1,4 @@
 using System.Collections;
-using UnityEditor.SceneManagement;
 using UnityEngine;
 using UnityEngine.AI;
 
@@ -173,6 +172,7 @@ public class Enemy : MonoBehaviour
         }
 
     }
+
     public void HitByGrenade(Vector3 explosionPos)
     {
         curhealth -= 100;
